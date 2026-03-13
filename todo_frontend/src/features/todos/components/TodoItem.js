@@ -34,7 +34,7 @@ function TodoItem({
         aria-label={`Delete "${label}"`}
         title="Delete"
       >
-        ×
+        Delete
       </button>
     </li>
   );
