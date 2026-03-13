@@ -10,21 +10,20 @@ function TodoList({
   ariaLabel = "Todo list",
 }) {
   /** Renders a list (empty state included). */
-  if (!todos.length) {
-    return <p className="rt-empty">{emptyMessage}</p>;
-  }
-
   return (
-    <ul className="rt-list" aria-label={ariaLabel}>
-      {todos.map((todo) => (
-        <TodoItem
-          key={todo.id}
-          todo={todo}
-          onToggle={onToggle}
-          onDelete={onDelete}
-        />
-      ))}
-    </ul>
+    <div>
+      {!todos.length ? <p className="rt-empty">{emptyMessage}</p> : null}
+      <ul className="rt-list" aria-label={ariaLabel}>
+        {todos.map((todo) => (
+          <TodoItem
+            key={todo.id}
+            todo={todo}
+            onToggle={onToggle}
+            onDelete={onDelete}
+          />
+        ))}
+      </ul>
+    </div>
   );
 }
 
