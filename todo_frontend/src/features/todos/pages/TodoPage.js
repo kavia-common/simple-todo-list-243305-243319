@@ -10,31 +10,26 @@ const INITIAL_TODOS = [
   { id: 2, text: "Mark it complete", completed: true },
 ];
 
+function createTodo(text) {
+  return { id: nextId++, text, completed: false };
+}
+
+function getStats(todos) {
+  const remaining = todos.reduce((acc, t) => acc + (t.completed ? 0 : 1), 0);
+  return { remaining, total: todos.length };
+}
+
 // PUBLIC_INTERFACE
 function TodoPage() {
   /** Page container for the Todo feature: holds local todo state and renders UI. */
   const [todos, setTodos] = useState(INITIAL_TODOS);
 
-  const remainingCount = useMemo(
-    () => todos.filter((t) => !t.completed).length,
-    [todos]
-  );
-
-  const totalCount = todos.length;
+  const stats = useMemo(() => getStats(todos), [todos]);
 
   // PUBLIC_INTERFACE
   const addTodo = (text) => {
     /** Add a new todo with the provided text. */
-    const trimmed = text.trim();
-    if (!trimmed) return;
-
-    const newTodo = {
-      id: nextId++,
-      text: trimmed,
-      completed: false,
-    };
-
-    setTodos((prev) => [newTodo, ...prev]);
+    setTodos((prev) => [createTodo(text), ...prev]);
   };
 
   // PUBLIC_INTERFACE
@@ -63,16 +58,16 @@ function TodoPage() {
 
         <div className="rt-badges" aria-label="Todo statistics">
           <span className="rt-badge" title="Remaining">
-            Remaining: <strong>{remainingCount}</strong>
+            Remaining: <strong>{stats.remaining}</strong>
           </span>
           <span className="rt-badge" title="Total">
-            Total: <strong>{totalCount}</strong>
+            Total: <strong>{stats.total}</strong>
           </span>
         </div>
       </header>
 
       <main className="rt-card">
-        <TodoForm onAdd={addTodo} />
+        <TodoForm onAdd={addTodo} autoFocus />
         <TodoList todos={todos} onToggle={toggleTodo} onDelete={deleteTodo} />
       </main>
 

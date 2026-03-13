@@ -1,21 +1,31 @@
 import React, { useId, useState } from "react";
 
 // PUBLIC_INTERFACE
-function TodoForm({ onAdd }) {
-  /** Form to add a new todo item. */
+function TodoForm({
+  onAdd,
+  label = "New todo",
+  placeholder = "What do you need to do?",
+  buttonText = "Add",
+  autoFocus = false,
+}) {
+  /** Form to add a new item (defaults to todo copy). */
   const inputId = useId();
   const [text, setText] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onAdd(text);
+    const trimmed = text.trim();
+    if (!trimmed) return;
+    onAdd(trimmed);
     setText("");
   };
+
+  const isEmpty = !text.trim();
 
   return (
     <form className="rt-form" onSubmit={handleSubmit}>
       <label className="rt-label" htmlFor={inputId}>
-        New todo
+        {label}
       </label>
 
       <div className="rt-formRow">
@@ -25,11 +35,12 @@ function TodoForm({ onAdd }) {
           type="text"
           value={text}
           onChange={(e) => setText(e.target.value)}
-          placeholder="What do you need to do?"
+          placeholder={placeholder}
           autoComplete="off"
+          autoFocus={autoFocus}
         />
         <button className="rt-btn" type="submit">
-          Add
+          {buttonText}
         </button>
       </div>
     </form>
