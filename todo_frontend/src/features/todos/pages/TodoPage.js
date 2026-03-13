@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import TodoForm from "../components/TodoForm";
 import TodoList from "../components/TodoList";
 import "../../../styles/todos.css";
@@ -22,7 +22,18 @@ function getStats(todos) {
 // PUBLIC_INTERFACE
 function TodoPage() {
   /** Page container for the Todo feature: holds local todo state and renders UI. */
-  const [todos, setTodos] = useState(INITIAL_TODOS);
+  const [todos, setTodos] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Simulate initial load (keeps UI ready for real API integration later).
+  useEffect(() => {
+    const t = window.setTimeout(() => {
+      setTodos(INITIAL_TODOS);
+      setIsLoading(false);
+    }, 450);
+
+    return () => window.clearTimeout(t);
+  }, []);
 
   const stats = useMemo(() => getStats(todos), [todos]);
 
@@ -46,33 +57,54 @@ function TodoPage() {
     setTodos((prev) => prev.filter((t) => t.id !== id));
   };
 
+  const emptyMessage = isLoading
+    ? "Loading your todos…"
+    : "No todos yet — add one above to get started.";
+
   return (
     <div className="rt-page">
       <header className="rt-header">
         <div>
           <h1 className="rt-title">Todo List</h1>
           <p className="rt-subtitle">
-            A tiny scaffold: add, complete, delete.
+            Keep it simple: add, complete, delete.
           </p>
         </div>
 
         <div className="rt-badges" aria-label="Todo statistics">
           <span className="rt-badge" title="Remaining">
-            Remaining: <strong>{stats.remaining}</strong>
+            Remaining: <strong>{isLoading ? "—" : stats.remaining}</strong>
           </span>
           <span className="rt-badge" title="Total">
-            Total: <strong>{stats.total}</strong>
+            Total: <strong>{isLoading ? "—" : stats.total}</strong>
           </span>
         </div>
       </header>
 
-      <main className="rt-card">
-        <TodoForm onAdd={addTodo} autoFocus />
-        <TodoList todos={todos} onToggle={toggleTodo} onDelete={deleteTodo} />
+      <main className="rt-card" aria-busy={isLoading}>
+        <TodoForm
+          onAdd={addTodo}
+          autoFocus
+          label="Add a todo"
+          placeholder="e.g., Buy milk, reply to emails, go for a walk…"
+          helpText="Tip: Press Enter to add. Keep it short and actionable."
+          disabled={isLoading}
+          buttonText={isLoading ? "Loading…" : "Add"}
+        />
+
+        <TodoList
+          todos={todos}
+          onToggle={toggleTodo}
+          onDelete={deleteTodo}
+          isLoading={isLoading}
+          emptyMessage={emptyMessage}
+        />
       </main>
 
       <footer className="rt-footer">
-        <small>Tip: Press Enter to add a todo.</small>
+        <small>
+          Tip: Use the checkbox to mark items done. Delete removes the item.
+        </small>
       </footer>
     </div>
   );
