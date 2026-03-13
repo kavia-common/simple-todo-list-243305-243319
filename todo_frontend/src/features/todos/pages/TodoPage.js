@@ -24,6 +24,7 @@ function TodoPage() {
   /** Page container for the Todo feature: holds local todo state and renders UI. */
   const [todos, setTodos] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [query, setQuery] = useState("");
 
   // Simulate initial load (keeps UI ready for real API integration later).
   useEffect(() => {
@@ -36,6 +37,12 @@ function TodoPage() {
   }, []);
 
   const stats = useMemo(() => getStats(todos), [todos]);
+
+  const filteredTodos = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return todos;
+    return todos.filter((t) => t.text.toLowerCase().includes(q));
+  }, [todos, query]);
 
   // PUBLIC_INTERFACE
   const addTodo = (text) => {
@@ -59,7 +66,9 @@ function TodoPage() {
 
   const emptyMessage = isLoading
     ? "Loading your todos…"
-    : "No todos yet — add one above to get started.";
+    : query.trim()
+      ? "No matching todos."
+      : "No todos yet — add one above to get started.";
 
   return (
     <div className="rt-page">
@@ -92,8 +101,36 @@ function TodoPage() {
           buttonText={isLoading ? "Loading…" : "Add"}
         />
 
+        <div className="rt-form" style={{ marginTop: 6 }}>
+          <label className="rt-label" htmlFor="todoSearch">
+            Search todos
+          </label>
+          <div className="rt-formRow">
+            <input
+              id="todoSearch"
+              className="rt-input"
+              type="search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Type to filter…"
+              autoComplete="off"
+              disabled={isLoading}
+            />
+            <button
+              className="rt-btn"
+              type="button"
+              onClick={() => setQuery("")}
+              disabled={isLoading || !query}
+              aria-label="Clear search"
+              title="Clear search"
+            >
+              Clear
+            </button>
+          </div>
+        </div>
+
         <TodoList
-          todos={todos}
+          todos={filteredTodos}
           onToggle={toggleTodo}
           onDelete={deleteTodo}
           isLoading={isLoading}
